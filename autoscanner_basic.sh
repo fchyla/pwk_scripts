@@ -10,6 +10,7 @@ fi
 path=$1
 range=$2
 xml_location=$path/$range.xml
+ip_detected_list=$path/$range-detected-ip.txt
 
 #Quick recon scan on provided IP or range
 echo "Running quick scan, please wait"
@@ -20,15 +21,10 @@ echo
 echo "Quick scan done see "$path"/"$range"-quick-recon.txt for results"
 
 #Run extended scan on all IPs found in the quick scan
-
+grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2 > $ip_detected_list
 ip_count=$(grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2| wc -l )
-ip_list_counter=1
+
 echo
 echo "Running detailed port scans for "$ip_count" discovered IPs, this will take some time do something else"
 
-for ip in $(grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2);
-	do
-		echo ">>> Scanning "$ip", "$ip_list_counter of $ip_count;
-		nmap -Pn -sSU -T4 -p1-65535 -oX $path/$ip-all-ports.xml $ip | grep -v 'filtered|closed';
-		let "ip_list_counter++"
-	done
+nmap -Pn -sSU -T4 -p1-65535 -oX $path/$ip-all-ports.xml -iL $ip_detected_list --host-timeout 30m | grep -v 'filtered|closed';
