@@ -29,4 +29,4 @@ echo
 echo "Running detailed port scans for "$ip_count" discovered IPs, this will take some time do something else"
 
 # Run nmap with -iL input list to scan in paralell
-nmap -Pn -sSU -T4 -p1-65535 -oX $path/$ip-all-ports.xml -iL $ip_detected_list --host-timeout 30m | grep -v 'filtered|closed';
+nmap -Pn -sSU -T4 -p1-65535 -oX $path/$range-all-ports.xml -iL $ip_detected_list --host-timeout 30m | grep -v 'filtered|closed';
