@@ -13,7 +13,7 @@ xml_location=$path/$range.xml
 
 #Quick recon scan on provided IP or range
 echo "Running quick scan, please wait"
-nmap -Pn -F -sSU -T5 -oX $path/$range.xml $range | grep -v 'filtered|closed' > $path/quick_recon_$range.txt
+nmap -Pn -F -sSU -T5 -oX $xml_location $range | grep -v 'filtered|closed' > $path/quick_recon_$range.txt
 wait
 
 echo
