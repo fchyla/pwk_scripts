@@ -13,13 +13,10 @@
 
 -----------------------------------------------------------------------------
  [Details]:
- This script is intended to be executed remotely against a list of IPs to enumerate discovered services such
- as smb, smtp, snmp, ftp and other.
+ This script is intended to be executed remotely against a list of IPs to enumerate discovered services such as smb, smtp, snmp, ftp and other.
 -----------------------------------------------------------------------------
  [Modification, Distribution, and Attribution]:
- You are free to modify and/or distribute this script as you wish.  I only ask that you maintain original
- author attribution and not attempt to sell it or incorporate it into any commercial offering (as if it's
- worth anything anyway :)
+ You are free to modify and/or distribute this script as you wish.  I only ask that you maintain original author attribution and not attempt to sell it or incorporate it into any commercial offering (as if it's worth anything anyway :)
 
 
 
