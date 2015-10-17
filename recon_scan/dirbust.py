@@ -4,12 +4,14 @@ import sys
 import os
 import subprocess
 
-if len(sys.argv) != 3:
-    print "Usage: dirbust.py <target url> <scan name>"
+if len(sys.argv) != 4:
+    print "Usage: dirbust.py <target url> <scan name> <directory>"
     sys.exit(0)
 
 url = str(sys.argv[1])
 name = str(sys.argv[2])
+scan_results_location = str(sys.argv[3].strip())
+
 folders = ["/usr/share/dirb/wordlists", "/usr/share/dirb/wordlists/vulns"]
 
 found = []
@@ -17,7 +19,7 @@ print "INFO: Starting dirb scan for " + url
 for folder in folders:
     for filename in os.listdir(folder):
 
-	outfile = " -o " + "results/exam/" + name + "_dirb_" + filename
+	outfile = " -o " + "%s/results/" % (scan_results_location) + name + "_dirb_" + filename
 	DIRBSCAN = "dirb %s %s/%s %s -S -r" % (url, folder, filename, outfile)
         try:
 	    results = subprocess.check_output(DIRBSCAN, shell=True)
@@ -35,4 +37,4 @@ try:
         for item in found:
             print "   " + item
 except:
-    print "INFO: No items found during dirb scan of " + url		
+    print "INFO: No items found during dirb scan of " + url

@@ -26,8 +26,7 @@ for name in names:
     s.send('VRFY ' + name.strip() + '\r\n')
     result=s.recv(1024)
     if ("not implemented" in result) or ("disallowed" in result):
-	sys.exit("INFO: VRFY Command not implemented on " + sys.argv[1]) 
+	sys.exit("INFO: VRFY Command not implemented on " + sys.argv[1])
     if (("250" in result) or ("252" in result) and ("Cannot VRFY" not in result)):
-	print "[*] SMTP VRFY Account found on " + sys.argv[1] + ": " + name.strip()	
+	print "[*] SMTP VRFY Account found on " + sys.argv[1] + ": " + name.strip()
     s.close()
-

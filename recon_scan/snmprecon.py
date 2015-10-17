@@ -3,11 +3,12 @@ import subprocess
 import sys
 
 if len(sys.argv) != 2:
-    print "Usage: snmprecon.py <ip address>"
+    print "Usage: snmprecon.py <ip address> <directory>"
     sys.exit(0)
 
 snmpdetect = 0
 ip_address = sys.argv[1]
+scan_results_location = sys.argv[2].strip()
 
 ONESIXONESCAN = "onesixtyone %s" % (ip_address)
 results = subprocess.check_output(ONESIXONESCAN, shell=True).strip()
@@ -26,8 +27,7 @@ if results != "":
 
 NMAPSCAN = "nmap -vv -sV -sU -Pn -p 161,162 --script=snmp-netstat,snmp-processes %s" % (ip_address)
 results = subprocess.check_output(NMAPSCAN, shell=True)
-resultsfile = "results/" + ip_address + "_snmprecon.txt"
+resultsfile = "%s/results/" + ip_address + "_snmprecon.txt" % (scan_results_location)
 f = open(resultsfile, "w")
 f.write(results)
 f.close
-

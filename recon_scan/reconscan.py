@@ -33,16 +33,16 @@ def multProc(targetin, scanip, port):
 def dnsEnum(ip_address, port):
     print "INFO: Detected DNS on " + ip_address + ":" + port
     if port.strip() == "53":
-       SCRIPT = "./dnsrecon.py %s" % (ip_address)# execute the python script
+       SCRIPT = "./dnsrecon.py %s %s" % (ip_address, scan_results_location)# execute the python script
        subprocess.call(SCRIPT, shell=True)
     return
 
 def httpEnum(ip_address, port):
     print "INFO: Detected http on " + ip_address + ":" + port
     print "INFO: Performing nmap web script scan for " + ip_address + ":" + port
-    HTTPSCAN = "nmap -sV -Pn -vv -p %s --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oN %s/%s_http.nmap %s" % (port, scan_results_location, ip_address, scan_results_location, ip_address)
+    HTTPSCAN = "nmap -sV -Pn -vv -p %s --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oN %s/%s_http.nmap %s" % (port, scan_results_location, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCAN, shell=True)
-    DIRBUST = "./dirbust.py http://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
+    DIRBUST = "./dirbust.py http://%s:%s %s %s" % (ip_address, port, ip_address, scan_results_location) # execute the python script
     subprocess.call(DIRBUST, shell=True)
     #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
     return
@@ -50,9 +50,9 @@ def httpEnum(ip_address, port):
 def httpsEnum(ip_address, port):
     print "INFO: Detected https on " + ip_address + ":" + port
     print "INFO: Performing nmap web script scan for " + ip_address + ":" + port
-    HTTPSCANS = "nmap -sV -Pn -vv -p %s --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oX %s/%s_https.nmap %s" % (port, scan_results_location, ip_address, scan_results_location, ip_address)
+    HTTPSCANS = "nmap -sV -Pn -vv -p %s --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oX %s/%s_https.nmap %s" % (port, scan_results_location, ip_address, ip_address)
     results = subprocess.check_output(HTTPSCANS, shell=True)
-    DIRBUST = "./dirbust.py https://%s:%s %s" % (ip_address, port, ip_address) # execute the python script
+    DIRBUST = "./dirbust.py https://%s:%s %s %s" % (ip_address, port, ip_address, scan_results_location) # execute the python script
     subprocess.call(DIRBUST, shell=True)
     #NIKTOSCAN = "nikto -host %s -p %s > %s._nikto" % (ip_address, port, ip_address)
     return
@@ -60,18 +60,18 @@ def httpsEnum(ip_address, port):
 def mssqlEnum(ip_address, port):
     print "INFO: Detected MS-SQL on " + ip_address + ":" + port
     print "INFO: Performing nmap mssql script scan for " + ip_address + ":" + port
-    MSSQLSCAN = "nmap -vv -sV -Pn -p %s --script=ms-sql-info,ms-sql-config,ms-sql-dump-hashes --script-args=mssql.instance-port=1433,smsql.username-sa,mssql.password-sa -oX results/exam/nmap/%s_mssql.xml %s" % (port, scan_results_location, ip_address, scan_results_location, ip_address)
+    MSSQLSCAN = "nmap -vv -sV -Pn -p %s --script=ms-sql-info,ms-sql-config,ms-sql-dump-hashes --script-args=mssql.instance-port=1433,smsql.username-sa,mssql.password-sa -oX %s/nmap/%s_mssql.xml %s" % (port, scan_results_location, ip_address, ip_address)
     results = subprocess.check_output(MSSQLSCAN, shell=True)
 
 def sshEnum(ip_address, port):
     print "INFO: Detected SSH on " + ip_address + ":" + port
-    SCRIPT = "./sshrecon.py %s %s" % (ip_address, port)
+    SCRIPT = "./sshrecon.py %s %s %s" % (ip_address, port, scan_results_location)
     subprocess.call(SCRIPT, shell=True)
     return
 
 def snmpEnum(ip_address, port):
     print "INFO: Detected snmp on " + ip_address + ":" + port
-    SCRIPT = "./snmprecon.py %s" % (ip_address)
+    SCRIPT = "./snmprecon.py %s %s" % (ip_address, scan_results_location)
     subprocess.call(SCRIPT, shell=True)
     return
 
@@ -93,7 +93,7 @@ def smbEnum(ip_address, port):
 
 def ftpEnum(ip_address, port):
     print "INFO: Detected ftp on " + ip_address + ":" + port
-    SCRIPT = "./ftprecon.py %s %s" % (ip_address, port)
+    SCRIPT = "./ftprecon.py %s %s %s" % (ip_address, port, scan_results_location)
     subprocess.call(SCRIPT, shell=True)
     return
 
@@ -184,8 +184,12 @@ if not os.path.exists(scan_results_location):
 if not os.path.exists(scan_results_location+'/nmap'):
     os.makedirs(scan_results_location+'/nmap')
 
+if not os.path.exists(scan_results_location+'/results'):
+    os.makedirs(scan_results_location+'/results')
+
+
 if __name__=='__main__':
-   f = open(alive_hosts, 'r') #open host list file 
+   f = open(alive_hosts, 'r') #open host list file
    for scanip in f:
        jobs = []
        p = multiprocessing.Process(target=nmapScan, args=(scanip,))
