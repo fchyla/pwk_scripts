@@ -1,20 +1,25 @@
-###############################################################################################################
+###############################################################################
+## [Usage]:
+## python <script name>
+## Some functions require root/sudo to work
+###############################################################################
 ## [Title]: reconscan.py -- a recon/enumeration script
 ## [Orignal script author]: Mike Czumak (T_v3rn1x) -- @SecuritySift
 ##
 ## [Modified by]: Filip Chyla (keresh)
 ## - removed hardcoded directories
 ##
-##-------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------
 ## [Details]:
 ## This script is intended to be executed remotely against a list of IPs to enumerate discovered services such
 ## as smb, smtp, snmp, ftp and other.
-##-------------------------------------------------------------------------------------------------------------
+##-----------------------------------------------------------------------------
 ## [Modification, Distribution, and Attribution]:
 ## You are free to modify and/or distribute this script as you wish.  I only ask that you maintain original
 ## author attribution and not attempt to sell it or incorporate it into any commercial offering (as if it's
 ## worth anything anyway :)
-###############################################################################################################
+###############################################################################
+
 
 
 This readme file pertains to the reconscan.py script and all associated scripts.
