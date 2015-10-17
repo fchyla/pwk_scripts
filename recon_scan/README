@@ -6,8 +6,8 @@
  Some functions require root/sudo to work
 
 
- Author]: Mike Czumak (T_v3rn1x) -- @SecuritySift
-[Modified by]: Filip Chyla (keresh)
+ [Author]: Mike Czumak (T_v3rn1x) -- @SecuritySift
+ [Modified by]: Filip Chyla (keresh)
  - removed hardcoded directories
 
 -----------------------------------------------------------------------------
