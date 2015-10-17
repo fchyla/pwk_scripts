@@ -172,7 +172,9 @@ print "####        http, ftp, dns, ssh, snmp, smtp, ms-sql     ####"
 print "############################################################"
 
 alive_hosts = str(raw_input('Live hosts file: '))
-scan_results_location = str(raw_input('Where to drop the results? '))
+
+print 'Where to drop the results, will be created if does not exist: '
+scan_results_location = str(raw_input())
 
 #Check if scan_results_location exists if not create
 
@@ -183,7 +185,7 @@ if not os.path.exists(scan_results_location+'/nmap'):
     os.makedirs(scan_results_location+'/nmap')
 
 if __name__=='__main__':
-   f = open(alive_hosts, 'r') # CHANGE THIS!! grab the alive hosts from the discovery scan for enum
+   f = open(alive_hosts, 'r') #open host list file 
    for scanip in f:
        jobs = []
        p = multiprocessing.Process(target=nmapScan, args=(scanip,))
