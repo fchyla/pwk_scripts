@@ -4,6 +4,7 @@ if [ $# -eq 0 ]
 	then
 		echo "Missing arguments"
 		echo "Usage autoscanner_basic.sh /path/to/directory <ip or range>"
+		echo "Run as root or sudo, requires nmap and xsltproc'
 		exit 1
 fi
 
@@ -14,28 +15,58 @@ ip_detected_list=$path/$range-detected-ip.txt
 
 #Quick recon scan on provided IP or range
 echo "Running quick scan, please wait"
-sudo nmap -Pn -F -sSU -T5 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
+nmap -Pn -F -sSU -T5 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
 wait
 
+mkdir $path/autoscanner_reports
+
 #convert xml report to html
-xsltproc $xml_location -o $path/$range-quick-recon-html-report.html
+xsltproc $xml_location -o $path/autoscanner_reports/$range-quick-recon-html-report.html
+
+# Create a lisf of detected ips found in the quick scan
+grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2 > $ip_detected_list
 
 echo '=========================================='
 echo
 echo 'Reports created: '
 echo
-echo 'HTML: '$path/$range-quick-recon-html-report.html
+echo 'HTML: '$path/autoscanner_reports/$range-quick-recon-html-report.html
 echo 'TXT: '$path/$range-quick-recon.txt
+echo 'Detected IP list: '$ip_detected_list
 echo
 echo '=========================================='
-# Create a lisf of detected ips found in the quick scan
-grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2 > $ip_detected_list
+echo
+read -p 'To run stage 2 press Enter to cancel press ctrl+c'
+echo
+echo 'Starting stage 2 scan'
+############################## STAGE 2
+
 
 # Get ip count for more feedback
 ip_count=$(grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2| wc -l )
 
 echo
 echo "Running detailed port scans for "$ip_count" discovered IPs, this will take some time do something else"
+mkdir $path/autoscanner_per_ip_scans
 
 # Run nmap with -iL input list to scan in paralell
-sudo nmap -Pn -sSU -T4 -p1-65535 -oX $path/$range-all-ports.xml -iL $ip_detected_list | grep -v 'filtered|closed';
+# for live scan change to
+echo 'Running nmap TCP SYN scan on '$ip_count' IPs'
+for ip in $(cat $ip_detected_list);
+	do
+		nmap -Pn -sS -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml $ip | grep -v 'filtered|closed';
+		wait;
+		xsltproc $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-ports.html-report.html;
+
+	done
+
+#echo 'TCP SYN scan done, running UDP scan'
+#nmap -Pn -sU -T4 -p1-65535 -oX $path/$range-all-UDP-ports.xml -iL $ip_detected_list | grep -v 'filtered|closed';
+mkdir $path/autoscanner_per_ip_scans/intense_per_ip_results
+echo 'Running TCP SYN with version detection'
+for ip in $(cat $ip_detected_list);
+	do
+		nmap -nvv -Pn -sSV -T1 -p$(cat $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml | grep portid | grep protocol=\"tcp\" | cut -d'"' -f4 | paste -sd "," -) --version-intensity 9 -oX $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-intense-tcp.xml $ip;
+		wait;
+		xsltproc $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-all-TCP-version-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-version-ports-report.html;
+	done
