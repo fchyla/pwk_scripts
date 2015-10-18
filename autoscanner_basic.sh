@@ -54,7 +54,7 @@ function tcp_scanner {
 	echo 'Running nmap TCP SYN scan on '$ip_count' IPs'
 		for ip in $(cat $ip_detected_list);
 			do
-				nmap -Pn -sS -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml $ip | grep -v 'filtered|closed';&
+				nmap -Pn -sS -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml $ip | grep -v 'filtered|closed';
 				wait;
 				xsltproc $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-ports.html-report.html;
 
