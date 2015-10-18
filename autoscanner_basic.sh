@@ -4,7 +4,7 @@ if [ $# -eq 0 ]
 	then
 		echo "Missing arguments"
 		echo "Usage autoscanner_basic.sh /path/to/directory <ip or range>"
-		echo "Run as root or sudo, requires nmap and xsltproc'
+		echo "Run as root or sudo, requires nmap and xsltproc"
 		exit 1
 fi
 
@@ -36,11 +36,9 @@ echo 'Detected IP list: '$ip_detected_list
 echo
 echo '=========================================='
 echo
-read -p 'To run stage 2 press Enter to cancel press ctrl+c'
 echo
 echo 'Starting stage 2 scan'
 ############################## STAGE 2
-
 
 # Get ip count for more feedback
 ip_count=$(grep addr $xml_location | grep ipv4 | awk {'print $2'} | cut -d "\"" -f 2| wc -l )
@@ -51,22 +49,34 @@ mkdir $path/autoscanner_per_ip_scans
 
 # Run nmap with -iL input list to scan in paralell
 # for live scan change to
-echo 'Running nmap TCP SYN scan on '$ip_count' IPs'
-for ip in $(cat $ip_detected_list);
-	do
-		nmap -Pn -sS -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml $ip | grep -v 'filtered|closed';
-		wait;
-		xsltproc $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-ports.html-report.html;
 
-	done
+function tcp_scanner {
+	echo 'Running nmap TCP SYN scan on '$ip_count' IPs'
+		for ip in $(cat $ip_detected_list);
+			do
+				nmap -Pn -sS -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml $ip | grep -v 'filtered|closed';&
+				wait;
+				xsltproc $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-ports.html-report.html;
 
-#echo 'TCP SYN scan done, running UDP scan'
-#nmap -Pn -sU -T4 -p1-65535 -oX $path/$range-all-UDP-ports.xml -iL $ip_detected_list | grep -v 'filtered|closed';
-mkdir $path/autoscanner_per_ip_scans/intense_per_ip_results
-echo 'Running TCP SYN with version detection'
-for ip in $(cat $ip_detected_list);
-	do
-		nmap -nvv -Pn -sSV -T1 -p$(cat $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml | grep portid | grep protocol=\"tcp\" | cut -d'"' -f4 | paste -sd "," -) --version-intensity 9 -oX $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-intense-tcp.xml $ip;
-		wait;
-		xsltproc $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-all-TCP-version-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-version-ports-report.html;
-	done
+			done
+
+	mkdir $path/autoscanner_per_ip_scans/intense_per_ip_results
+	echo 'Running TCP SYN with version detection'
+	for ip in $(cat $ip_detected_list);
+		do
+			nmap -nvv -Pn -sSV -T1 -p$(cat $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml | grep portid | grep protocol=\"tcp\" | cut -d'"' -f4 | paste -sd "," -) --version-intensity 9 -oX $path/autoscanner_per_ip_scans/intense_per_ip_r/$ip-all-TCP-version-ports.xml $ip;
+			wait;
+			xsltproc $path/autoscanner_per_ip_scans/intense_per_ip_r/$ip-all-TCP-version-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-version-ports-report.html;
+		done
+	}
+
+function udp_scanner {
+	echo 'Running nmap UDP top 200 ports scan on '$ip_count' IPs'
+	nmap -vv -Pn -A -sC -sU -T 4 --top-ports 200 -iL $ip_detected_list -oX $path/autoscanner_per_ip_scans/$range-top200-UDP-ports.xml | grep -v 'filtered|closed';
+	wait;
+	xsltproc $path/autoscanner_per_ip_scans/$range-top200-UDP-ports.xml -o $path/autoscanner_reports/$range-top200-UDP-ports.html-report.html;
+
+	}
+
+	tcp_scanner &
+	udp_scanner &
