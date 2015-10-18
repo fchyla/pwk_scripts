@@ -72,7 +72,7 @@ function tcp_scanner {
 
 function udp_scanner {
 	echo 'Running nmap UDP top 200 ports scan on '$ip_count' IPs'
-	nmap -vv -Pn -A -sC -sU -T 4 --top-ports 200 -iL $ip_detected_list -oX $path/autoscanner_per_ip_scans/$range-top200-UDP-ports.xml | grep -v 'filtered|closed';
+	nmap -vv -Pn -A -sC -sU -T4 --top-ports 200 -iL $ip_detected_list -oX $path/autoscanner_per_ip_scans/$range-top200-UDP-ports.xml | grep -v 'filtered|closed';
 	wait;
 	xsltproc $path/autoscanner_per_ip_scans/$range-top200-UDP-ports.xml -o $path/autoscanner_reports/$range-top200-UDP-ports.html-report.html;
 
