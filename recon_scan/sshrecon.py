@@ -2,7 +2,7 @@
 import subprocess
 import sys
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 4:
     print "Usage: sshrecon.py <ip address> <port> <directory>"
     sys.exit(0)
 

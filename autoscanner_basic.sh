@@ -47,6 +47,13 @@ echo
 echo "Running detailed port scans for "$ip_count" discovered IPs, this will take some time do something else"
 mkdir $path/autoscanner_per_ip_scans
 
+for ip in $(cat $ip_detected_list);
+	do
+		mkdir $path/autoscanner_per_ip_scans/$ip;
+		mkdir $path/autoscanner_reports/$ip;
+	done
+
+
 # Run nmap with -iL input list to scan in paralell
 # for live scan change to
 
@@ -55,18 +62,25 @@ function tcp_scanner {
 		for ip in $(cat $ip_detected_list);
 			do
 				nmap -Pn -sS -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml $ip | grep -v 'filtered|closed';
-				wait;
-				xsltproc $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-ports.html-report.html;
+	   done
+			wait;
 
-			done
+	#################################
+	#################################
+	# MOVE REPORTING TO A SEPARATE SCRIPT
+	####
+	
+		for ip in $(cat $ip_detected_list);
+			xsltproc $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml -o $path/autoscanner_reports/$ip/$ip-all-TCP-ports.html-report.html;
+   	done
 
 	mkdir $path/autoscanner_per_ip_scans/intense_per_ip_results
 	echo 'Running TCP SYN with version detection'
 	for ip in $(cat $ip_detected_list);
 		do
-			nmap -nvv -Pn -sSV -T1 -p$(cat $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml | grep portid | grep protocol=\"tcp\" | cut -d'"' -f4 | paste -sd "," -) --version-intensity 9 -oX $path/autoscanner_per_ip_scans/intense_per_ip_r/$ip-all-TCP-version-ports.xml $ip;
+			nmap -nvv -Pn -sSV -T1 -p$(cat $path/autoscanner_per_ip_scans/$ip-all-TCP-ports.xml | grep portid | grep protocol=\"tcp\" | cut -d'"' -f4 | paste -sd "," -) --version-intensity 9 -oX $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-all-TCP-version-ports.xml $ip;
 			wait;
-			xsltproc $path/autoscanner_per_ip_scans/intense_per_ip_r/$ip-all-TCP-version-ports.xml -o $path/autoscanner_reports/$ip-all-TCP-version-ports-report.html;
+			xsltproc $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-all-TCP-version-ports.xml -o $path/autoscanner_reports/$ip/$ip-all-TCP-version-ports-report.html;
 		done
 	}
 
@@ -78,5 +92,35 @@ function udp_scanner {
 
 	}
 
-	tcp_scanner &
-	udp_scanner &
+
+function http_enum {
+  for ip in $(cat $ip_detected_list);
+		do
+			nmap -sV -Pn -vv -p$(cat $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-all-TCP-version-ports.xml | grep http | cut -d'"' -f4 | paste -sd "," -) $ip --script=http-vhosts,http-userdir-enum,http-apache-negotiation,http-backup-finder,http-config-backup,http-default-accounts,http-email-harvest,http-methods,http-method-tamper,http-passwd,http-robots.txt -oX $path/autoscanner_per_ip_scans/$ip/$ip-http-enum.xml
+			wait
+			xsltproc $path/autoscanner_per_ip_scans/$ip/$ip-http-enum.xml -o $path/autoscanner_reports/$ip/$ip-http-enum.html;
+		done
+}
+
+function ftp_enum {
+  for ip in $(cat $ip_detected_list);
+		do
+			nmap -sV -Pn -vv -p$(cat $path/autoscanner_per_ip_scans/intense_per_ip_results/$ip-all-TCP-version-ports.xml | grep ftp | cut -d'"' -f4 | paste -sd "," -) $ip --script=ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 -oX $path/autoscanner_per_ip_scans/$ip/$ip-ftp-enum.xml
+			wait
+			xsltproc $path/autoscanner_per_ip_scans/$ip/$ip-ftp-enum.xml -o $path/autoscanner_reports/$ip/$ip-ftp-enum.html;
+		done
+}
+udp_scanner &
+
+tcp_scanner
+wait
+http_enum &
+ftp_enum
+wait
+
+
+echo
+echo
+echo '===== All scans done ======'
+echo
+echo

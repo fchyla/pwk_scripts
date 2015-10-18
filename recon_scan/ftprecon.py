@@ -20,7 +20,7 @@ f.write(results)
 f.close
 
 print "INFO: Performing hydra ftp scan against " + ip_address
-HYDRA = "hydra -L wordlists/userlist -P wordlists/offsecpass -f -o %s/results/%s_ftphydra.txt -u %s -s %s ftp" % (scan_results_location, ip_address, ip_address, port)
+HYDRA = "hydra -L /usr/share/wordlists/metasploit/unix_users.txt -P /usr/share/wordlists/metasploit/unix_passwords.txt -f -o %s/results/%s_ftphydra.txt -u %s -s %s ftp" % (scan_results_location, ip_address, ip_address, port)
 results = subprocess.check_output(HYDRA, shell=True)
 resultarr = results.split("\n")
 for result in resultarr:
