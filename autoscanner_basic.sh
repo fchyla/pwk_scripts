@@ -79,12 +79,13 @@ function tcp_scanner {
 }
 
 function tcp_scanner_all-in-one-file {
-	echo 'Running nmap TCP SYN scan on '$ip_count' IPs >> nmap -Pn -sS -T4 -A -p1-65535'
+	echo 'Works like SHIT you were warned'
+	echo 'Running nmap TCP SYN scan on '$ip_count' IPs >> nmap -Pn -sS -T4 -p1-65535'
 	echo 'Results in a single xml file'
 		for ip in $(cat $ip_detected_list);
 			do
 				mkdir $path/autoscanner_per_ip_scans/whole-range $range;
-				nmap -Pn -sS -T4 -A -p1-65535 -oX $path/autoscanner_per_ip_scans/$range-all-TCP-ports.xml -iL $ip_detected_list | grep -v 'filtered|closed';
+				nmap -Pn -sS -A -T4 -p1-65535 -oX $path/autoscanner_per_ip_scans/$range-all-TCP-ports.xml -iL $ip_detected_list | grep -v 'filtered|closed';
 	   done
 }
 
@@ -138,6 +139,7 @@ case $scan_type in
 	allinonefile)
 		tcp_scanner_all-in-one-file
 		wait
+		;;
 	*)
 		echo '==================================================='
 		echo "No option selected only quick detection scan performed"
