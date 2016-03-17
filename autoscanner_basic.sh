@@ -3,7 +3,7 @@
 if [ $# -eq 0 ]
 	then
 		echo "Missing arguments"
-		echo "Usage autoscanner_basic.sh <scan type> /path/to/directory <ip or range>"
+		echo "Usage autoscanner_basic.sh <ip or range nmap style> /path/to/directory  <scan type>"
 		echo 'Scan types available:'
 		echo 'no-intense : no service detection, TCP SYN on all 65k porst and UDP top 200'
 		echo 'full : service detection and enumeration'
