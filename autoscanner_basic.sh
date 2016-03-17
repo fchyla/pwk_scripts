@@ -152,4 +152,4 @@ echo '===== All scans done ======'
 
 bash ./Reporting_autoscanner.sh $path $range
 wait
-echo '==== Reports cerated in '$path'/autoscanner_reports'
+echo '==== Reports created in '$path'/autoscanner_reports'
