@@ -14,8 +14,8 @@ if [ $# -eq 0 ]
 fi
 
 
-path=$1
-range=$2
+path=$2
+range=$1
 scan_type=$3
 xml_location=$path/$range.xml
 ip_detected_list=$path/$range-detected-ip.txt
