@@ -36,8 +36,9 @@ echo "Running quick scan, please wait"
 nmap -Pn -F -sSU -T5 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
 wait
 
-mkdir $path/autoscanner_reports
-
+if [ ! -d "$path" ]; then
+	mkdir -p $path/autoscanner_reports
+  fi
 #convert xml report to html
 xsltproc $xml_location -o $path/autoscanner_reports/$range-quick-recon-html-report.html
 
@@ -58,7 +59,9 @@ echo
 echo
 echo
 
-mkdir $path/autoscanner_per_ip_scans;
+if [ ! -d "$path/autoscanner_per_ip_scans" ]; then
+	mkdir $path/autoscanner_per_ip_scans;
+fi
 
 for ip in $(cat $ip_detected_list);
 	do
