@@ -31,9 +31,15 @@ echo 'Detected IP list: '$ip_detected_list
 echo
 echo '=========================================='
 echo
+
+if [ ! -d "$path" ]; then
+	echo 'Creating '$path
+	mkdir -p $path
+  fi
+
 echo
 echo "Running quick scan, please wait"
-nmap -Pn -F -sSU -T5 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
+nmap -Pn -F -sSU -T4 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
 wait
 
 if [ ! -d "$path" ]; then
