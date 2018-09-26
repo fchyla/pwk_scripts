@@ -133,7 +133,6 @@ case $scan_type in
 	no-intense)
 		udp_scanner&
 		tcp_scanner
-		tcp_scanner_intense
 		wait
 		;;
 	full)
