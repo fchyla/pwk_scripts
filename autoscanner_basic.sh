@@ -1,3 +1,4 @@
+#!/bin/bash
 #Automated recon scanner bash + nmap
 
 if [ $# -eq 0 ]
@@ -39,7 +40,7 @@ if [ ! -d "$path" ]; then
 
 echo
 echo "Running quick scan, please wait"
-nmap -Pn -F -sSU -T4 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
+nmap -Pn -F -sS -T4 -oX $xml_location $range | grep -v 'filtered|closed' > $path/$range-quick-recon.txt
 wait
 
 if [ ! -d "$path" ]; then
@@ -158,6 +159,6 @@ echo
 echo
 echo '===== All scans done ======'
 
-bash ./Reporting_autoscanner.sh $path $range
+#bash ./Reporting_autoscanner.sh $path $range
 wait
-echo '==== Reports created in '$path'/autoscanner_reports'
+#echo '==== Reports created in '$path'/autoscanner_reports'
